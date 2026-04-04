@@ -863,6 +863,7 @@ section {
 }
 
 /* Animations */
+/* Reveal on Scroll - Original Fade-Up Animation */
 [data-reveal] {
     opacity: 0;
     transform: translateY(30px);

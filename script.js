@@ -5,15 +5,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
+                // Check if this is a parent requiring staggering
+                if (entry.target.hasAttribute('data-reveal-parent')) {
+                    const children = entry.target.querySelectorAll('[data-reveal]');
+                    children.forEach((child, index) => {
+                        setTimeout(() => {
+                            child.classList.add('revealed');
+                        }, index * 150); // 150ms delay between each child
+                    });
+                } else if (!entry.target.closest('[data-reveal-parent]')) {
+                    // Standard reveal (not part of a stagger group)
+                    entry.target.classList.add('revealed');
+                }
                 observer.unobserve(entry.target);
             }
         });
     }, {
-        threshold: 0.15
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px" // Slightly earlier trigger
     });
 
-    revealElements.forEach(el => {
+    // Observe parents and individual reveal elements
+    document.querySelectorAll('[data-reveal-parent], [data-reveal]:not([data-reveal-parent] [data-reveal])').forEach(el => {
         revealOnScroll.observe(el);
     });
 
@@ -75,8 +88,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Lucide icons
     if (window.lucide) {
         window.lucide.createIcons();
-        setTimeout(() => {
-            window.lucide.createIcons();
-        }, 100);
     }
 });
